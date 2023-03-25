@@ -11,7 +11,7 @@ for windows
 ```bash
   pip install -r requirements.txt
   cd RandomPasswordGeneratorCLI
-  pip main.py
+  python randPass.py [options]
 ```
 
 for mac
@@ -19,5 +19,5 @@ for mac
 ```bash
   pip3 install -r requirements.txt
   cd RandomPasswordGeneratorCLI
-  pip3 main.py
+  python3 randPass.py [options]
 ```
