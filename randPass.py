@@ -123,7 +123,7 @@ def gen_pass(length, special, case, number, input_based,fix_password, hint_based
     if str(special).lower().strip() == "y":
         charlist.extend(symbols)
     if str(case).lower().strip() == "u":
-        print("ME WAS HERE")
+        # print("ME WAS HERE")
         charlist.extend(upper)
     if str(case).lower().strip() == "l":
         charlist.extend(lower)
