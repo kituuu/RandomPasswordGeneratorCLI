@@ -1,6 +1,7 @@
 import click
 import random
 import string
+import nltk
 
 
 # Declaring Constants
@@ -29,15 +30,54 @@ def removeVowel(s:list):
     return temp
 
 def fixPassword(oldPass):
-    for i in range(len(oldPass)):
-        if i==0:
-            oldPass[i] = oldPass[i].capitalize()
-        elif oldPass[i].lower() in replacement.keys():
-            oldPass[i] = replacement[oldPass[i].lower()]
     temp = ""
     for i in range(len(oldPass)):
-        temp+=oldPass[i]
+        if i==0:
+            temp += oldPass[i].capitalize()
+        elif oldPass[i].lower() in replacement.keys():
+            temp += replacement[oldPass[i].lower()]
+        else:
+            temp+= oldPass[i]
+    # temp = ""
+    # for i in range(len(oldPass)):
+    #     temp+=oldPass[i]
     return temp
+def generateword(text) :
+    # Tokenize the text
+    tokens = nltk.word_tokenize(text)
+
+    # Build a Markov chain model
+    model = {}
+    for i in range(len(tokens) - 1):
+        current_word = tokens[i]
+        next_word = tokens[i + 1]
+        if current_word not in model:
+            model[current_word] = {}
+        if next_word not in model[current_word]:
+            model[current_word][next_word] = 0
+        model[current_word][next_word] += 1
+
+    # Generate a random word
+    current_word = random.choice(tokens)
+    while current_word not in model:
+        current_word = random.choice(tokens)
+    next_word_distribution = model[current_word]
+    next_word = random.choices(list(next_word_distribution.keys()), weights=list(next_word_distribution.values()))[0]
+    while not next_word.isalpha():
+        current_word = next_word
+        next_word_distribution = model[current_word]
+        next_word = random.choices(list(next_word_distribution.keys()), weights=list(next_word_distribution.values()))[0]
+    return next_word
+
+def getHintPassword(inputtext):
+    hintPassword = ""
+
+    while len(hintPassword) < 12:
+        temp = generateword(inputtext)
+        if temp not in hintPassword:
+            hintPassword+= temp
+
+    return hintPassword
 
 # Adding this function as a command using click
 @click.command()
@@ -61,8 +101,10 @@ def fixPassword(oldPass):
 @click.option('-f',"--fix_password",help="This command will fix a poor password", required=0, default="")
 
 # Creating a function which will create a password based on a password hint
+@click.option('-h',"--hint_based",help="This command will generate a random password based on your given hint sentece of more than 6 words.",required=0,default="")
+
 # password generate function (command)
-def gen_pass(length, special, case, number, input_based,fix_password):
+def gen_pass(length, special, case, number, input_based,fix_password, hint_based):
 
     # Dummy variable to store generated password
     pwd = ""
@@ -104,8 +146,12 @@ def gen_pass(length, special, case, number, input_based,fix_password):
         print(pwd)
     if fix_password is not None:
         fix_password = fixPassword(fix_password)
-    print(fix_password)
-    
+        print(fix_password)
+    hint_based = str(hint_based)
+    if len(hint_based) > 0:
+        generated = getHintPassword(str(hint_based))
+        generated = fixPassword(generated)
+        print(generated)
 
 
 if __name__ == "__main__" :
